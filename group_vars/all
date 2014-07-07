@@ -1,0 +1,8 @@
+---
+# Variables here are applicable to all host groups
+
+ntpserver: 0.au.pool.ntp.org
+
+ansible_ssh_user: ec2-user 
+ansible_ssh_private_key_file: ~/.ssh/yan-key-pair-apsydney.pem
+

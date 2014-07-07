@@ -1,0 +1,13 @@
+---
+- name: install mysql server
+  yum: name={{ item }} state=present
+  with_items:
+   - mysql-server
+   - MySQL-python
+   
+- name: create mysql configuration file
+  template: src=my.cnf.j2 dest=/etc/my.cnf
+  notify: restart mysql
+  
+- name: start mysql service
+  service: name=mysqld state=started enabled=true

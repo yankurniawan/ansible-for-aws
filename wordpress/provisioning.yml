@@ -1,0 +1,77 @@
+---  
+- hosts: localhost  
+  connection: local  
+  gather_facts: no    
+  vars:  
+    #your region  
+    region: ap-southeast-2
+    keyname: wordpress-apsydney  
+    #your ip address
+    allowed_ip: 123.243.16.53/32  
+    instance_type: t2.micro     
+    image: ami-d9fe9be3   
+  tasks:  
+    - name: create key pair  
+      tags: keypair  
+      local_action:  
+        module: ec2_key  
+        region: "{{ region }}"  
+        name: "{{ keyname }}"      
+      register: mykey  
+    - name: write the private key to a file  
+      tags: keypair  
+      local_action: shell echo -e "{{ item.value.private_key }}" > ~/.ssh/"{{ keyname }}".pem && chmod 600 ~/.ssh/"{{ keyname }}".pem      
+      with_dict: mykey   
+      when: item.value.private_key is defined     
+
+    - name: create security group  
+      tags: sg
+      local_action:  
+        module: ec2_group    
+        region: "{{ region }}"
+        #your security group name  
+        name: sg_wordpress_apsydney    
+        description: security group for apsydney webserver host
+        rules:
+          # allow ssh access from your ip address  
+          - proto: tcp  
+            from_port: 22  
+            to_port: 22  
+            cidr_ip: "{{ allowed_ip }}"  
+          # allow http access from anywhere  
+          - proto: tcp  
+            from_port: 80    
+            to_port: 80    
+            cidr_ip: 0.0.0.0/0    
+          # allow https access from anywhere  
+          - proto: tcp  
+            from_port: 443    
+            to_port: 443    
+            cidr_ip: 0.0.0.0/0
+        rules_egress:  
+          - proto: all  
+            cidr_ip: 0.0.0.0/0    
+
+    - name: launch ec2 instance  
+      tags: ec2
+      local_action:  
+        module: ec2  
+        region: "{{ region }}"  
+        key_name: "{{ keyname }}"
+        instance_type: "{{ instance_type }}"    
+        image: "{{ image }}"  
+        wait: yes    
+        group: sg_wordpress_apsydney  
+        id: wordpress_launch_2  
+        instance_tags:  
+          Name: wordpress-1  
+          class: wordpress
+      register: ec2    
+    - name: associate new EIP for the instance  
+      tags: eip      
+      local_action:
+        module: ec2_eip
+        region: "{{ region }}"
+        instance_id: "{{ item.id }}"
+      with_items: ec2.instances   
+      when: item.id is defined   

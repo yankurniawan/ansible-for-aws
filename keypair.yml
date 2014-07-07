@@ -1,0 +1,20 @@
+---  
+- hosts: localhost  
+  connection: local  
+  gather_facts: no  
+  vars:
+    region: ap-southeast-2
+    keyname: yan1
+  tasks:  
+    - name: create key pair  
+      local_action:  
+        module: ec2_key  
+        region: "{{ region }}"
+        name: yan1
+#        state: absent
+      register: mykey
+    - name: write to file
+      local_action: shell echo -e "{{ item.value.private_key }}" > ~/.ssh/"{{ keyname }}".pem && chmod 600 ~/.ssh/"{{ keyname }}".pem
+      with_dict: mykey
+      when: item.value.private_key is defined
+   

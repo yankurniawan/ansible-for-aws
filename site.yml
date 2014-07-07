@@ -1,0 +1,18 @@
+---
+# install, configure, and start ntp on all ec2 instances
+- hosts: ec2  
+  sudo: yes  
+  roles:  
+    - common  
+
+# install and start mysql server on instance with tags class=database
+- hosts: tag_class_database  
+  sudo: yes  
+  roles:  
+    - mysql  
+     
+# install and start apache on instance with tags class=webserver and environment=staging
+- hosts: tag_class_webserver:&tag_environment_staging  
+  sudo: yes  
+  roles:
+    - apache

@@ -1,0 +1,49 @@
+---  
+- hosts: localhost  
+  connection: local  
+  gather_facts: no    
+  vars:  
+    region: ap-southeast-2  
+    instance_type: t1.micro     
+    image: ami-6bf99c51    
+    key: yan-key-pair-apsydney  
+  tasks:  
+    - name: launch ec2 with tags webserver staging 
+      local_action:  
+        module: ec2  
+        region: "{{ region }}"  
+        key_name: "{{ key }}"  
+        instance_type: "{{ instance_type }}"    
+        image: "{{ image }}"     
+        wait: yes    
+        group: sg_webserver_apsydney  
+        instance_tags:  
+          Name: staging-webserver-1  
+          class: webserver  
+          environment: staging  
+    - name: launch ec2 with tags webserver production 
+      local_action:  
+        module: ec2  
+        region: "{{ region }}"  
+        key_name: "{{ key }}"  
+        instance_type: "{{ instance_type }}"    
+        image: "{{ image }}"     
+        wait: yes    
+        group: sg_webserver_apsydney  
+        instance_tags:  
+          Name: production-webserver-1  
+          class: webserver  
+          environment: production
+    - name: launch ec2 with tags database staging 
+      local_action:  
+        module: ec2  
+        region: "{{ region }}"  
+        key_name: "{{ key }}"  
+        instance_type: "{{ instance_type }}"    
+        image: "{{ image }}"    
+        wait: yes    
+        group: sg_database_apsydney  
+        instance_tags:  
+          Name: staging-database-1  
+          class: database  
+          environment: staging  
