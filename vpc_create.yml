@@ -1,0 +1,41 @@
+---  
+- hosts: localhost  
+  connection: local  
+  gather_facts: no    
+  vars:  
+    region: ap-southeast-2
+    # prefix for naming  
+    prefix: staging
+    # availability zone
+    az: ap-southeast-2a
+  tasks:  
+    - name: create vpc   
+      local_action:  
+        module: ec2_vpc     
+        region: "{{ region }}"
+        cidr_block: 10.0.0.0/16
+        resource_tags: '{"Name":"{{ prefix }}_vpc"}'
+        subnets:
+          - cidr: 10.0.0.0/24
+            az: "{{ az }}"
+            resource_tags: '{"Name":"{{ prefix }}_subnet_public"}'
+          - cidr: 10.0.1.0/24
+            az: "{{ az }}"
+            resource_tags: '{"Name":"{{ prefix }}_subnet_private"}'
+        internet_gateway: yes
+        route_tables:
+          - subnets:
+              - 10.0.0.0/24
+            routes:
+              - dest: 0.0.0.0/0
+                gw: igw
+      register: vpc
+    - name: write vpc id to {{ prefix }}_vpc_info file
+      sudo: yes
+      local_action: shell echo "{{ prefix }}"_vpc":" "{{ vpc.vpc_id }}" 
+                      > "{{ prefix }}"_vpc_info
+    - name: write subnets id to {{ prefix }}_vpc_info file
+      sudo: yes
+      local_action: shell echo "{{ item.resource_tags.Name }}"":" "{{ item.id }}" 
+                      >> "{{ prefix }}"_vpc_info
+      with_items: vpc.subnets

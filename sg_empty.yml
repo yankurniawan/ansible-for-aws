@@ -1,0 +1,34 @@
+---  
+- hosts: localhost  
+  connection: local  
+  gather_facts: no    
+  vars_files:
+    - staging_vpc_info
+  vars:  
+    #your region  
+    region: ap-southeast-2  
+    #prefix for naming
+    prefix: staging
+    vpc_id: "{{ staging_vpc }}"
+  tasks:  
+    - name: create empty security group for webservers 
+      local_action:  
+        module: ec2_group    
+        region: "{{ region }}"
+        vpc_id: "{{ vpc_id }}"
+        name: "{{ prefix }}_sg_web"    
+        description: security group for webservers
+    - name: create empty security group for databases 
+      local_action:  
+        module: ec2_group    
+        region: "{{ region }}"
+        vpc_id: "{{ vpc_id }}"
+        name: "{{ prefix }}_sg_database"    
+        description: security group for databases
+    - name: create empty security group for nat
+      local_action:  
+        module: ec2_group    
+        region: "{{ region }}"
+        vpc_id: "{{ vpc_id }}"
+        name: "{{ prefix }}_sg_nat"    
+        description: security group for nat

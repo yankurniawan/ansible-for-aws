@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - staging_vpc_info
+  vars:
+    region: ap-southeast-2
+    key: yan-key-pair-apsydney
+    instance_type: t2.micro
+    image: ami-d9fe9be3
+    prefix: staging
+  tasks:
+    - name: database instance provisioning
+      local_action:
+        module: ec2
+        region: "{{ region }}"
+        key_name: "{{ key }}"
+        instance_type: "{{ instance_type }}"
+        image: "{{ image }}"
+        wait: yes
+        group: "{{ prefix }}_sg_database"
+        instance_tags:
+          Name: "{{ prefix }}_database"
+          class: database
+          environment: staging
+        id: db_launch_01
+        vpc_subnet_id: "{{ staging_subnet_private }}"
+        assign_public_ip: no
