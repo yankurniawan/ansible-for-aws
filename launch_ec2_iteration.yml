@@ -12,11 +12,8 @@
         region: "{{ region }}"  
         key_name: yan-key-pair-apsydney  
         instance_type: t1.micro  
-        image: ami-6bf99c51  
-        wait: yes    
+        image: ami-6bf99c51      
         group: sg_webserver_apsydney
         instance_tags:  
-          group: webserver  
-        exact_count: 3  
-        count_tag:  
-          group: webserver
+          Name: "web{{ item }}"  
+      with_sequence: count=5

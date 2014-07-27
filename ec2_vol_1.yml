@@ -1,0 +1,20 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  vars:  
+    #your region  
+    region: ap-southeast-2    
+  tasks:  
+    - name: EC2 provisioning with general purpose EBS volume 
+      local_action:  
+        module: ec2  
+        region: "{{ region }}"  
+        key_name: yan-key-pair-apsydney  
+        instance_type: t1.micro  
+        image: ami-6bf99c51      
+        group: sg_webserver_apsydney
+        volumes:
+          - device_name: /dev/sda1
+            device_type: gp2
+            volume_size: 100
+            delete_on_termination: true
