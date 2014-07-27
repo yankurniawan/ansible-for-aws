@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+  tasks:
+    - name: delete DB subnet group
+      local_action:
+        module: rds_subnet_group
+        name: dbsg2
+        state: absent
+        region: "{{ region }}"

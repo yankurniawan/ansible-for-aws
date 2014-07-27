@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+  tasks:
+    - name: create mysql parameter group
+      local_action:
+        module: rds_param_group
+        name: mysqlpg1
+        state: present
+        region: "{{ region }}"
+        description: MySQL Parameter Group 1
+        engine: mysql5.6
+        params: 
+          innodb_lock_wait_timeout: 3600
+          max_allowed_packet: 512M
+          net_write_timeout: 300
+
+

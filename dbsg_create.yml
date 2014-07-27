@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+  vars_files:
+    - staging_vpc_info
+  tasks:
+    - name: create Multi-AZ DB subnet group
+      local_action:
+        module: rds_subnet_group
+        name: dbsg2
+        state: present
+        region: "{{ region }}"
+        description: DB Subnet Group 2
+        subnets: 
+          - "{{ staging_subnet_private_0 }}"
+          - "{{ staging_subnet_private_1 }}"
