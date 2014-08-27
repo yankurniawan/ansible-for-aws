@@ -1,0 +1,5 @@
+---
+- hosts: tag_class_jumpbox
+  sudo: yes
+  roles:
+    - ansible

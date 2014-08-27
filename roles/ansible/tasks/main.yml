@@ -1,0 +1,15 @@
+---
+- name: upgrade all packages
+  yum: name=* state=latest
+- name: install the 'Development tools' package group
+  yum: name="@Development tools" state=present
+- name: install required packages
+  yum: name={{ item }} state=present
+  with_items:
+    - epel-release.noarch
+    - python-pip
+    - python-devel
+- name: install setuptools
+  pip: name=setuptools extra_args='--upgrade'
+- name: install ansible
+  pip: name=ansible

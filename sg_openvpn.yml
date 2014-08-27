@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - staging_vpc_info
+  vars:
+    #your region
+    region: ap-southeast-2
+    #your ip address
+    allowed_ip: 123.243.16.53/32
+    #prefix for naming
+    prefix: staging
+    vpc_id: "{{ staging_vpc }}"
+  tasks:
+    - name: create security group for openvpn instance
+      local_action:
+        module: ec2_group
+        region: "{{ region }}"
+        vpc_id: "{{ vpc_id }}"
+        #your security group name
+        name: "{{ prefix }}_sg_openvpn"
+        description: security group for openvpn
+        rules:
+          - proto: tcp  
+            from_port: 22  
+            to_port: 22  
+            cidr_ip: "{{ allowed_ip }}"
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 943
+            to_port: 943
+            cidr_ip: 0.0.0.0/0
+          - proto: udp
+            from_port: 1194
+            to_port: 1194
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+

@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    bucketname: yan001
+  tasks:
+    - name: create virtual directory
+      local_action:
+        module: s3
+        bucket: "{{ bucketname }}"
+        object: /backup/database/
+        mode: create
