@@ -1,0 +1,28 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  vars:  
+    region: ap-southeast-2    
+    key: yan-key-pair-apsydney
+    type: t2.micro
+    image: ami-d9fe9be3
+    sg: sg_webserver_apsydney
+    name: test-01
+  tasks:  
+    - name: check if instance with name tag exists
+      command: aws ec2 describe-instances --filter Name=tag:Name,Values={{ name }} 
+               --query 'Reservations[0].Instances[0].InstanceId' --output text
+      register: instanceid
+
+    - name: create EC2 if not exists 
+      local_action:  
+        module: ec2  
+        region: "{{ region }}"  
+        key_name: "{{ key }}"  
+        instance_type: "{{ type }}"  
+        image: "{{ image }}"
+        group: "{{ sg }}"
+        instance_tags:
+          Name: "{{ name }}"
+        wait: yes
+      when: instanceid.stdout=="None" 

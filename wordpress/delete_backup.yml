@@ -1,0 +1,12 @@
+---
+- name: delete object from S3 bucket
+  hosts: localhost
+  gather_facts: no
+  vars:
+    bucketname: yan_wordpress
+    date: 20141031
+  tasks:
+    - name: delete backup file
+      command: s3cmd del s3://{{ bucketname }}/backup/database/{{ date }}_backup.tar.gz
+      ignore_errors: yes
+

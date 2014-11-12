@@ -1,0 +1,20 @@
+---
+- name: download backup from S3 and restore
+  hosts: tag_class_wordpress
+  gather_facts: no
+  vars:
+    bucketname: yan_wordpress
+    date: 20140920
+  tasks:
+    - name: download backup archive
+      local_action:
+        module: s3
+        bucket: "{{ bucketname }}"
+        object: /backup/database/{{ date }}_backup.tar.gz
+        dest: /tmp/{{ date }}_backup.tar.gz
+        mode: get
+    - name: extract archive and restore mysql backup
+      shell: tar -xzf {{ date }}_backup.tar.gz &&
+             mysql -u {{ wp_db_user }} -p{{ wp_db_password }}
+             {{ wp_db_name }} < {{ date }}_backup.sql
+             chdir=/tmp

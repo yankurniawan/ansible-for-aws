@@ -1,23 +1,21 @@
----
 - hosts: localhost
   connection: local
   gather_facts: no
   vars:
     region: ap-southeast-2
+    name: test-vpc
   tasks:
     - name: get vpc id
-      local_action:
-        module: vpc_lookup
-        region: "{{ region }}"
-        tags:
-          Name: test-vpc
-      register: vpc
+      command: "aws ec2 describe-vpcs --filters Name=tag:Name,Values={{ name }}
+               --query 'Vpcs[0].VpcId' --output text"
+      register: vpcid
+
+    - debug: var=vpcid.stdout
 
     - name: delete vpc
       local_action:
         module: ec2_vpc
         region: "{{ region }}"
         state: absent
-        vpc_id: "{{ item }}"
+        vpc_id: "{{ vpcid.stdout }}"
         wait: yes
-      with_items: vpc.vpc_ids

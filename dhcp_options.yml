@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+    name: test-vpc
+  tasks:
+    - name: create dhcp options set
+      command: aws ec2 create-dhcp-options --dhcp-configuration 
+               "Key=domain-name,Values=example.com" "Key=domain-name-servers,Values=10.0.0.7,10.0.0.8"
+               --query 'DhcpOptions.DhcpOptionsId' --output text
+      register: dopt
+
+    - name: get vpc id
+      command: "aws ec2 describe-vpcs --filters Name=tag:Name,Values={{ name }} 
+               --query 'Vpcs[0].VpcId' --output text"
+      register: vpcid
+
+    - name: associate vpc with dhcp options set
+      command: aws ec2 associate-dhcp-options --dhcp-options-id {{ dopt.stdout }} 
+               --vpc-id {{ vpcid.stdout }}

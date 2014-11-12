@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+  tasks:
+    - name: get subnet
+      local_action:
+        module: vpc_lookup
+        region: "{{ region }}"
+        tags:
+          Name: staging_vpc
+      register: vpc_subnet
+

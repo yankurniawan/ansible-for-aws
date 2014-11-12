@@ -1,0 +1,20 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  vars:  
+    region: ap-southeast-2    
+    name: test-01
+  tasks:  
+    - name: get instance id
+      command: aws ec2 describe-instances --filter Name=tag:Name,Values={{ name }} 
+               --query 'Reservations[0].Instances[0].InstanceId' --output text
+      register: instanceid
+
+    - name: stop instance 
+      local_action:  
+        module: ec2  
+        region: "{{ region }}"
+        instance_ids: "{{ instanceid.stdout }}"  
+        state: stopped
+        wait: yes
+      when: instanceid.stdout!="None"
