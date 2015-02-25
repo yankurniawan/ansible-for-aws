@@ -1,0 +1,19 @@
+- hosts: localhost
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+    ami_name: wordpress
+  tasks:
+    - name: get ami id
+      command: "aws ec2 describe-images
+               --filters Name=name,Values={{ ami_name }}
+               --query 'Images[0].ImageId' --output text"
+      register: imageid
+
+    - name: delete ami
+      ec2_ami:
+        region: "{{ region }}"
+        image_id: "{{ imageid.stdout }}"
+        delete_snapshot: yes
+        state: absent
+

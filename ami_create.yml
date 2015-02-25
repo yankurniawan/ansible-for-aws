@@ -1,0 +1,24 @@
+- hosts: localhost
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+    ins_name: wordpress_master
+    ami_name: wordpress
+  tasks:
+    - name: get instance id
+      command: "aws ec2 describe-instances 
+               --filters Name=tag:Name,Values={{ ins_name }}
+               --query 'Reservations[0].Instances[0].InstanceId' --output text"
+      register: instanceid
+
+    - name: create ami
+      ec2_ami:
+        instance_id: "{{ instanceid.stdout }}"
+        region: "{{ region }}"
+        wait: yes
+        name: "{{ ami_name }}"
+      register: ami
+
+    - debug: var=ami
+
+

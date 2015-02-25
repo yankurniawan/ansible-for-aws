@@ -1,0 +1,21 @@
+---
+- name: download wordpress
+  get_url: url=http://wordpress.org/wordpress-{{ wp_version }}.tar.gz 
+           dest=~/wordpress-{{ wp_version }}.tar.gz
+
+- name: extract wordpress archive
+  command: chdir=~ /bin/tar xvf wordpress-{{ wp_version }}.tar.gz 
+           creates=~/wordpress
+
+- name: copy wordpress to apache root directory
+  shell: cp -r ~/wordpress/* /var/www/html
+
+- name: fetch random salts for wordpress config
+  local_action: command curl https://api.wordpress.org/secret-key/1.1/salt/
+  register: "wp_salt"
+
+- name: copy wordpress config file
+  template: src=wp-config.php dest=/var/www/html/
+
+- name: change ownership of wordpress installation
+  file: path=/var/www/html/ owner=apache group=apache state=directory recurse=yes

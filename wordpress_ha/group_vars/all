@@ -1,0 +1,22 @@
+---
+db_name: wordpress
+username: dbadmin
+password: mypassword
+dbhost: staging-wordpress-rds.cxzxl961nonk.ap-southeast-2.rds.amazonaws.com
+
+ansible_ssh_user: ec2-user
+ansible_ssh_private_key_file: ~/.ssh/wordpress-apsydney.pem
+
+wp_version: 4.1
+
+# WordPress settings
+
+# Disable All Updates
+# By default automatic updates are enabled, set this value to true to disable all automatic updates
+auto_up_disable: false
+
+#Define Core Update Level
+#true  = Development, minor, and major updates are all enabled
+#false = Development, minor, and major updates are all disabled
+#minor = Minor updates are enabled, development, and major updates are disabled
+core_update_level: true

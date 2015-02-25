@@ -1,0 +1,9 @@
+---
+- name: install apache, php, and php-mysql
+  yum: name={{ item }} state=present
+  with_items:
+   - httpd
+   - php
+   - php-mysql
+- name: start and enable httpd
+  service: name=httpd state=started enabled=yes
