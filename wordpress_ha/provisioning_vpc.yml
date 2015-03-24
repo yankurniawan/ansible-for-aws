@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+    env: staging
+    az0: ap-southeast-2a
+    az1: ap-southeast-2b
+  tasks:
+    - name: create vpc with multi-az subnets
+      ec2_vpc:
+        region: "{{ region }}"
+        cidr_block: 10.0.0.0/16
+        resource_tags: '{"Name":"{{ env }}_vpc"}'
+        subnets:
+          - cidr: 10.0.0.0/24
+            az: "{{ az0 }}"
+            resource_tags: '{"Name":"{{ env }}_subnet_public_0"}'
+          - cidr: 10.0.1.0/24
+            az: "{{ az0 }}"
+            resource_tags: '{"Name":"{{ env }}_subnet_private_0"}'
+          - cidr: 10.0.2.0/24
+            az: "{{ az1 }}"
+            resource_tags: '{"Name":"{{ env }}_subnet_public_1"}'
+          - cidr: 10.0.3.0/24
+            az: "{{ az1 }}"
+            resource_tags: '{"Name":"{{ env }}_subnet_private_1"}'
+          - cidr: 10.0.4.0/24
+            az: "{{ az0 }}"
+            resource_tags: '{"Name":"{{ env }}_subnet_private_2"}'
+          - cidr: 10.0.5.0/24
+            az: "{{ az1 }}"
+            resource_tags: '{"Name":"{{ env }}_subnet_private_3"}'
+        internet_gateway: yes
+        route_tables:
+          - subnets:
+              - 10.0.0.0/24
+              - 10.0.2.0/24
+            routes:
+              - dest: 0.0.0.0/0
+                gw: igw
+      

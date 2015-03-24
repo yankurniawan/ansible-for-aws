@@ -1,7 +1,7 @@
 ---
 - name: download wordpress
   get_url: url=http://wordpress.org/wordpress-{{ wp_version }}.tar.gz dest=~/wordpress-{{ wp_version }}.tar.gz
-           sha256sum="{{ wp_sha256sum }}"
+#           sha256sum="{{ wp_sha256sum }}"
 
 - name: extract wordpress archive
   command: chdir=~ /bin/tar xvf wordpress-{{ wp_version }}.tar.gz creates=~/wordpress

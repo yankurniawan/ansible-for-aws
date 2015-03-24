@@ -1,4 +1,6 @@
+---
 - hosts: localhost
+  connection: local
   gather_facts: no
   vars:
     region: ap-southeast-2
@@ -18,6 +20,7 @@
         wait: yes
         name: "{{ ami_name }}"
       register: ami
+      when: instanceid.stdout!="None"
 
     - debug: var=ami
 

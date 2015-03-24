@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+    name: bamboo-1
+  tasks:
+    - name: get instance id
+      instance_lookup:
+        region: "{{ region }}"
+        tags:
+          Name: "{{ name }}"
+      register: instanceid
+
+    - debug: var=instanceid.instance_ids
+
+    - name: start instance
+      ec2:
+        region: "{{ region }}"
+        instance_ids: "{{ instanceid.instance_ids }}"
+        state: running
+        wait: yes
+      when: instanceid is defined
+

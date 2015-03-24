@@ -3,4 +3,5 @@ http/
 ansiblehttp
 staging_vpc_info
 bamboo/
+cloudformation/
 .cred

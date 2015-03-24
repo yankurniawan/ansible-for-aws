@@ -5,11 +5,11 @@
   vars:  
     #your region  
     region: ap-southeast-2
-    keyname: wordpress-apsydney  
+    keyname: wordpress-apsydney
     #your ip address
-    allowed_ip: 123.243.16.53/32  
+    allowed_ip: 123.243.16.53/32
     instance_type: t2.micro     
-    image: ami-d9fe9be3   
+    image: ami-d9fe9be3
   tasks:  
     - name: create key pair  
       tags: keypair  

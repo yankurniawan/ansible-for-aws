@@ -1,0 +1,52 @@
+#!/usr/bin/python
+
+#author: Yan Kurniawan <yan.kurniawan@gmail.com>
+
+import sys
+
+AWS_REGIONS = ['ap-northeast-1',
+               'ap-southeast-1',
+               'ap-southeast-2',
+               'eu-west-1',
+               'sa-east-1',
+               'us-east-1',
+               'us-west-1',
+               'us-west-2']
+
+try:
+    from boto.ec2 import connect_to_region
+except ImportError:
+    print "failed=True msg='boto required for this module'"
+    sys.exit(1)
+
+def main():
+
+    module=AnsibleModule(
+        argument_spec=dict(
+            region=dict(choices=AWS_REGIONS),
+            tags=dict(default=None, type='dict'),
+        )
+    )
+
+    params = module.params
+    tags = params['tags']
+    region = params['region']
+
+    if region:
+	try:
+            ec2 = connect_to_region(region)
+        except boto.exception.NoAuthHandlerFound, e:
+            module.fail_json(msg=str(e))
+    else:
+	module.fail_json(msg="region must be specified")
+
+    instance_ids = []
+    for tag, value in tags.iteritems():
+        for instance in ec2.get_only_instances(filters={"tag:" + tag: value}):
+            instance_ids.append(instance.id)
+
+    module.exit_json(changed=False, instance_ids=instance_ids)
+
+from ansible.module_utils.basic import *
+
+main()

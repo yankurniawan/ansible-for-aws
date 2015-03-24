@@ -1,0 +1,107 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    region: ap-southeast-2
+    allowed_ip: 54.79.34.239/32
+    vpc_cidr: 10.0.0.0/16
+    env: staging
+  tasks:
+    - name: get vpc id
+      command: "aws ec2 describe-vpcs --filters Name=tag:Name,Values={{ env }}_vpc
+               --query 'Vpcs[0].VpcId' --output text"
+      register: vpcid
+
+    - name: create sg_web rules
+      ec2_group:
+        region: "{{ region }}"
+        vpc_id: "{{ vpcid.stdout }}"
+        name: "{{ env }}_sg_web"
+        description: security group for webservers
+        rules:
+          # allow ssh access from ansible group
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            group_name: "{{ env }}_sg_ansible"
+            group_desc: security group for ansible
+          # allow http access from anywhere
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          # allow https access from anywhere
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: tcp
+            from_port: 3306
+            to_port: 3306
+            group_name: "{{ env }}_sg_database"
+            group_desc: security group for database
+          # allow http outbound
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          # allow https outbound
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+
+    - name: create sg_wordpress rules
+      ec2_group:
+        region: "{{ region }}"
+        vpc_id: "{{ vpcid.stdout }}"
+        name: "{{ env }}_sg_wordpress"
+        description: security group for autoscaled wordpress
+        rules:
+          # allow ssh access from ansible group
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            group_name: "{{ env }}_sg_ansible"
+            group_desc: security group for ansible
+          # allow http access from anywhere
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          # allow https access from anywhere
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: tcp
+            from_port: 3306
+            to_port: 3306
+            group_name: "{{ env }}_sg_database"
+            group_desc: security group for database
+          # allow http outbound
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          # allow https outbound
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+
+
+    - name: create sg_database rules
+      ec2_group:
+        region: "{{ region }}"
+        vpc_id: "{{ vpcid.stdout }}"
+        name: "{{ env }}_sg_database"
+        description: security group for database
+        rules:
+          - proto: tcp
+            from_port: 3306
+            to_port: 3306
+            group_name: "{{ prefix }}_sg_web"

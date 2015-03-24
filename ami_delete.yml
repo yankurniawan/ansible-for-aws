@@ -1,4 +1,6 @@
+---
 - hosts: localhost
+  connection: local
   gather_facts: no
   vars:
     region: ap-southeast-2
@@ -16,4 +18,4 @@
         image_id: "{{ imageid.stdout }}"
         delete_snapshot: yes
         state: absent
-
+      when: imageid.stdout!="None"

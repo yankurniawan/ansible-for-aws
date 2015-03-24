@@ -1,38 +1,49 @@
 ---
 - hosts: localhost
+  connection: local
   gather_facts: no
   vars:
     #your region
     region: ap-southeast-2
     keyname: wordpress-apsydney
     instance_type: t2.micro
+    env: staging
     image: ami-d9fe9be3
+    ins_name: wordpress_master 
   tasks:
-    - name: get staging_subnet_public_0 subnet id
-      command: aws ec2 describe-subnets 
-               --filters Name=tag:Name,Values=staging_subnet_public_0
-               --query 'Subnets[0].SubnetId' --output text
+    - name: get {{ env }}_subnet_public_0 subnet id
+      command: "aws ec2 describe-subnets 
+               --filters Name=tag:Name,Values={{ env }}_subnet_public_0
+               --query 'Subnets[0].SubnetId' --output text"
       register: subnet0
+
     - name: launch ec2 instance
-      tags: wp_master
       ec2:
         region: "{{ region }}"
         key_name: "{{ keyname }}"
         instance_type: "{{ instance_type }}"
         image: "{{ image }}"
         wait: yes
-        group: staging_sg_web
-        id: wordpress_ha_5
+        group: "{{ env }}_sg_web"
+        id: wordpress_ha_8
         instance_tags:
-          Name: wordpress_master
+          Name: "{{ ins_name }}"
           class: wordpress_ha
         vpc_subnet_id: "{{ subnet0.stdout }}"
       register: ec2
+      when: subnet0.stdout!="None"
+
+    - name: check EIP association
+      command: "aws ec2 describe-instances
+               --filters Name=tag:Name,Values={{ ins_name }}
+               --query 'Reservations[0].Instances[0].NetworkInterfaces[0].Association' 
+               --output text"
+      register: eip
+
     - name: associate new EIP for the instance
-      tags: wp_eip
       ec2_eip:
         region: "{{ region }}"
         instance_id: "{{ item.id }}"
       with_items: ec2.instances
-      when: item.id is defined
+      when: item.id is defined and eip.stdout=="None"
 
