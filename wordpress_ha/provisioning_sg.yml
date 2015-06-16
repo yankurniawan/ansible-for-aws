@@ -104,4 +104,4 @@
           - proto: tcp
             from_port: 3306
             to_port: 3306
-            group_name: "{{ prefix }}_sg_web"
+            group_name: "{{ env }}_sg_web"
