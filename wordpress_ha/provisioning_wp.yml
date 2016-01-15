@@ -13,6 +13,7 @@
   tasks:
     - name: get {{ env }}_subnet_public_0 subnet id
       command: "aws ec2 describe-subnets 
+               --region {{ region }}
                --filters Name=tag:Name,Values={{ env }}_subnet_public_0
                --query 'Subnets[0].SubnetId' --output text"
       register: subnet0
@@ -25,7 +26,7 @@
         image: "{{ image }}"
         wait: yes
         group: "{{ env }}_sg_web"
-        id: wordpress_ha_8
+        id: wordpress_ha_1
         instance_tags:
           Name: "{{ ins_name }}"
           class: wordpress_ha
@@ -35,6 +36,7 @@
 
     - name: check EIP association
       command: "aws ec2 describe-instances
+               --region {{ region }}
                --filters Name=tag:Name,Values={{ ins_name }}
                --query 'Reservations[0].Instances[0].NetworkInterfaces[0].Association' 
                --output text"

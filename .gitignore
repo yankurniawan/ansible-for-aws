@@ -1,7 +1,2 @@
-cochlear/
-http/
-ansiblehttp
-staging_vpc_info
-bamboo/
-cloudformation/
-.cred
+ansible4aws-book.*
+.DS_Store

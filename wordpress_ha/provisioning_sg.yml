@@ -4,7 +4,7 @@
   gather_facts: no
   vars:
     region: ap-southeast-2
-    allowed_ip: 54.79.34.239/32
+    allowed_ip: 203.87.79.2/32
     vpc_cidr: 10.0.0.0/16
     env: staging
   tasks:
@@ -18,7 +18,7 @@
         region: "{{ region }}"
         vpc_id: "{{ vpcid.stdout }}"
         name: "{{ env }}_sg_web"
-        description: security group for webservers
+        description: security group for public web
         rules:
           # allow ssh access from ansible group
           - proto: tcp
@@ -32,22 +32,6 @@
             to_port: 80
             cidr_ip: 0.0.0.0/0
           # allow https access from anywhere
-          - proto: tcp
-            from_port: 443
-            to_port: 443
-            cidr_ip: 0.0.0.0/0
-        rules_egress:
-          - proto: tcp
-            from_port: 3306
-            to_port: 3306
-            group_name: "{{ env }}_sg_database"
-            group_desc: security group for database
-          # allow http outbound
-          - proto: tcp
-            from_port: 80
-            to_port: 80
-            cidr_ip: 0.0.0.0/0
-          # allow https outbound
           - proto: tcp
             from_port: 443
             to_port: 443
@@ -58,7 +42,7 @@
         region: "{{ region }}"
         vpc_id: "{{ vpcid.stdout }}"
         name: "{{ env }}_sg_wordpress"
-        description: security group for autoscaled wordpress
+        description: security group for wordpress servers
         rules:
           # allow ssh access from ansible group
           - proto: tcp
@@ -66,33 +50,18 @@
             to_port: 22
             group_name: "{{ env }}_sg_ansible"
             group_desc: security group for ansible
-          # allow http access from anywhere
+          # allow http access from vpc cidr
           - proto: tcp
             from_port: 80
             to_port: 80
-            cidr_ip: 0.0.0.0/0
-          # allow https access from anywhere
+            group_name: "{{ env }}_sg_wordpress_lb"
+            group_desc: security group for wordpress load balancer
+          # allow https access from vpc cidr
           - proto: tcp
             from_port: 443
             to_port: 443
-            cidr_ip: 0.0.0.0/0
-        rules_egress:
-          - proto: tcp
-            from_port: 3306
-            to_port: 3306
-            group_name: "{{ env }}_sg_database"
-            group_desc: security group for database
-          # allow http outbound
-          - proto: tcp
-            from_port: 80
-            to_port: 80
-            cidr_ip: 0.0.0.0/0
-          # allow https outbound
-          - proto: tcp
-            from_port: 443
-            to_port: 443
-            cidr_ip: 0.0.0.0/0
-
+            group_name: "{{ env }}_sg_wordpress_lb"
+            group_desc: security group for wordpress load balancer
 
     - name: create sg_database rules
       ec2_group:
@@ -105,3 +74,37 @@
             from_port: 3306
             to_port: 3306
             group_name: "{{ env }}_sg_web"
+          - proto: tcp
+            from_port: 3306
+            to_port: 3306
+            group_name: "{{ env }}_sg_wordpress"
+
+    - name: create sg_ansible rules
+      ec2_group:
+        region: "{{ region }}"
+        vpc_id: "{{ vpcid.stdout }}"
+        name: "{{ env }}_sg_ansible"
+        description: security group for ansible 
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "{{ allowed_ip }}"
+
+    - name: create sg_wordpress_lb
+      ec2_group:
+        region: "{{ region }}"
+        vpc_id: "{{ vpcid.stdout }}"
+        name: "{{ env }}_sg_wordpress_lb"
+        description: security group for wordpress load balancer
+        rules:
+          # allow http access from anywhere
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          # allow https access from anywhere
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0

@@ -4,25 +4,30 @@
   gather_facts: no
   vars:
     region: ap-southeast-2
-    size: 100
-    instance_type: db.m1.small
+    env: staging
+    size: 5
+    instance_type: db.t2.micro
     db_engine: MySQL
-    engine_version: 5.6.22
+    engine_version: 5.6.23
     subnet_group: dbsg_wordpress
     param_group: wordpress
     # staging_sg_database security group ID
     security_groups: sg-eeb14e8b
-    iops: 1000
+
   tasks:
-    - name: get staging_subnet_private_0 subnet id
-      command: aws ec2 describe-subnets --filters Name=tag:Name,Values=staging_subnet_private_0
-               --query 'Subnets[0].SubnetId' --output text
+    - name: "get {{ env }}_subnet_private_0 subnet id"
+      command: "aws ec2 describe-subnets --filters Name=tag:Name,Values={{ env }}_subnet_private_0
+               --region {{ region }} --query 'Subnets[0].SubnetId' --output text"
       register: subnet0
+
+    - debug: var=subnet0.stdout
     
-    - name: get staging_subnet_private_1 subnet id
-      command: aws ec2 describe-subnets --filters Name=tag:Name,Values=staging_subnet_private_1
-               --query 'Subnets[0].SubnetId' --output text
+    - name: "get {{ env }}_subnet_private_1 subnet id"
+      command: "aws ec2 describe-subnets --filters Name=tag:Name,Values={{ env }}_subnet_private_1
+               --region {{ region }} --query 'Subnets[0].SubnetId' --output text"
       register: subnet1
+
+    - debug: var=subnet1.stdout
 
     - name: create Multi-AZ DB subnet group
       rds_subnet_group:
@@ -49,7 +54,7 @@
     - name: create mysql RDS instance
       rds:
         command: create
-        instance_name: staging-wordpress-rds
+        instance_name: "{{ env }}-wordpress-rds"
         region: "{{ region }}"
         size: "{{ size }}"
         instance_type: "{{ instance_type }}"
@@ -62,7 +67,7 @@
         username: "{{ username }}"
         password: "{{ password }}"
         vpc_security_groups: "{{ security_groups }}"
-        iops: "{{ iops }}"
+
 
 
     
