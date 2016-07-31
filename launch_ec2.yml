@@ -7,8 +7,7 @@
     region: ap-southeast-2    
   tasks:  
     - name: EC2 basic provisioning  
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         key_name: yan-key-pair-apsydney  
         instance_type: t1.micro  

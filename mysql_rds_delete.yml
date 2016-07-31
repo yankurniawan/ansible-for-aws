@@ -1,11 +1,11 @@
 - hosts: localhost
   gather_facts: no
+  connection: local 
   vars:
     region: ap-southeast-2
   tasks:
     - name: delete mysql RDS instance
-      local_action:
-        module: rds
+      rds:
         command: delete
         region: "{{ region }}"
         instance_name: staging-mysql-1 

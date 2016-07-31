@@ -7,14 +7,12 @@
     keyname: yan1
   tasks:  
     - name: create key pair  
-      local_action:  
-        module: ec2_key  
+      ec2_key:
         region: "{{ region }}"
-        name: yan1
-#        state: absent
+        name: "{{ keyname }}"
       register: mykey
+
     - name: write to file
-      local_action: shell echo -e "{{ item.value.private_key }}" > ~/.ssh/"{{ keyname }}".pem && chmod 600 ~/.ssh/"{{ keyname }}".pem
-      with_dict: mykey
-      when: item.value.private_key is defined
+      copy: content="{{ mykey.key.private_key }}" dest="~/.ssh/{{ keyname }}.pem" mode=0600
+      when: mykey.changed
    

@@ -6,8 +6,7 @@
     region: ap-southeast-2    
   tasks:  
     - name: launch instance
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         key_name: yan-key-pair-apsydney  
         instance_type: t1.micro  
@@ -16,8 +15,7 @@
         group: sg_webserver_apsydney
       register: ec2  
     - name: associate new EIP for the instance    
-      local_action:  
-        module: ec2_eip 
+      ec2_eip:
         region: "{{ region }}"
         instance_id: "{{ item.id }}"
       with_items: ec2.instances

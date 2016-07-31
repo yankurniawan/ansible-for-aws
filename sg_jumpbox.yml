@@ -1,6 +1,7 @@
 ---  
 - hosts: localhost    
-  gather_facts: no    
+  gather_facts: no   
+  connection: local  
   vars_files:
     - staging_vpc_info
   vars:  
@@ -13,8 +14,7 @@
     vpc_id: "{{ staging_vpc }}"
   tasks:  
     - name: create security group for jump box instance
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         vpc_id: "{{ vpc_id }}"
         #your security group name  

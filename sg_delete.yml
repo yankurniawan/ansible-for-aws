@@ -12,24 +12,21 @@
     vpc_id: "{{ staging_vpc }}"
   tasks:  
     - name: delete {{ prefix }}_sg_web
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         vpc_id: "{{ vpc_id }}"
         name: "{{ prefix }}_sg_web"    
         description: security group for webservers
         state: absent
     - name: delete {{ prefix }}_sg_database
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         vpc_id: "{{ vpc_id }}"
         name: "{{ prefix }}_sg_database"    
         description: security group for databases
         state: absent
     - name: delete {{ prefix }}_sg_nat
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         vpc_id: "{{ vpc_id }}"
         name: "{{ prefix }}_sg_nat"    

@@ -9,8 +9,7 @@
     allowed_ip: 123.243.16.53/32
   tasks:  
     - name: create database security group  
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         name: sg_database_apsydney    
         description: security group for apsydney database host

@@ -4,7 +4,7 @@
   gather_facts: no
   vars:
     region: ap-southeast-2
-    allowed_ip: 203.87.79.2/32
+    allowed_ip: xx.xx.xx.xx/32
     vpc_cidr: 10.0.0.0/16
     env: staging
   tasks:

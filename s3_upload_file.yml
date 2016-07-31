@@ -1,12 +1,12 @@
 ---
 - hosts: localhost
   gather_facts: no
+  connection: local 
   vars:
     bucketname: yan001
   tasks:
     - name: upload file
-      local_action:
-        module: s3
+      s3:
         bucket: "{{ bucketname }}"
         object: /backup/database/test.txt
         src: test.txt

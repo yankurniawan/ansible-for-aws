@@ -12,8 +12,7 @@
     prefix: staging
   tasks:  
     - name: web instance provisioning
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         key_name: "{{ key }}"
         instance_type: "{{ instance_type }}"  
@@ -24,12 +23,10 @@
           Name: "{{ prefix }}_web"
           class: web
           environment: staging
-        id: web_launch_01
         vpc_subnet_id: "{{ staging_subnet_public }}"
       register: ec2  
     - name: associate new EIP for the instance    
-      local_action:  
-        module: ec2_eip 
+      ec2_eip:
         region: "{{ region }}"
         instance_id: "{{ item.id }}"
       with_items: ec2.instances

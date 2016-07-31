@@ -1,12 +1,12 @@
 ---
 - hosts: localhost
   gather_facts: no
+  connection: local 
   vars:
     region: ap-southeast-2
   tasks:
     - name: delete mysql parameter group
-      local_action:
-        module: rds_param_group
+      rds_param_group:
         name: mysqlpg1
         state: absent
         region: "{{ region }}"

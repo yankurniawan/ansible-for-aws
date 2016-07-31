@@ -1,11 +1,11 @@
 ---
 - hosts: localhost
   gather_facts: no
+  connection: local 
   vars:
     bucketname: yan001
   tasks:
     - name: delete an S3 bucket and all of its contents
-      local_action:
-        module: s3
+      s3:
         bucket: "{{ bucketname }}"
         mode: delete

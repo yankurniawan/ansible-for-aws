@@ -1,5 +1,6 @@
 ---
 - hosts: localhost
+  connection: local
   gather_facts: no
   vars:
     region: ap-southeast-2
@@ -7,8 +8,7 @@
     - staging_vpc_info
   tasks:
     - name: create Multi-AZ DB subnet group
-      local_action:
-        module: rds_subnet_group
+      rds_subnet_group:
         name: dbsg2
         state: present
         region: "{{ region }}"

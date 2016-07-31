@@ -1,6 +1,7 @@
 ---  
 - hosts: localhost  
-  gather_facts: no    
+  gather_facts: no   
+  connection: local  
   vars:  
     region: ap-southeast-2    
     name: test-01
@@ -11,8 +12,7 @@
       register: instanceid
 
     - name: stop instance 
-      local_action:  
-        module: ec2  
+      ec2:  
         region: "{{ region }}"
         instance_ids: "{{ instanceid.stdout }}"  
         state: stopped

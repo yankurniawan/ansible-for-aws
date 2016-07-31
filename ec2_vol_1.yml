@@ -1,13 +1,13 @@
 ---  
 - hosts: localhost  
-  gather_facts: no    
+  gather_facts: no  
+  connection: local   
   vars:  
     #your region  
     region: ap-southeast-2    
   tasks:  
     - name: EC2 provisioning with general purpose EBS volume 
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         key_name: yan-key-pair-apsydney  
         instance_type: t1.micro  

@@ -7,8 +7,7 @@
     region: ap-southeast-2    
   tasks:  
     - name: terminate instances
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         wait: yes  
         instance_ids: ['i-9e1e18a1', 'i-f61b1dc9', 'i-36272109', 'i-0b272134', 'i-0a272135']  

@@ -1,11 +1,11 @@
 ---
 - hosts: localhost
   gather_facts: no
+  connection: local 
   vars:
     bucketname: yan001
   tasks:
     - name: create an S3 bucket
-      local_action:
-        module: s3
+      s3:
         bucket: "{{ bucketname }}"
         mode: create

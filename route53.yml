@@ -4,8 +4,7 @@
   gather_facts: no   
   tasks:
     - name: create record 
-      local_action:  
-        module: route53  
+      route53:
         command: create
         zone: yankurniawan.com.
         record: yankurniawan.com.

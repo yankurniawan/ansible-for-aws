@@ -15,8 +15,7 @@
     private_subnet: 10.0.1.0/24
   tasks:  
     - name: modify sg_web rules
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         vpc_id: "{{ vpc_id }}"
         #your security group name  
@@ -54,8 +53,7 @@
             to_port: 443
             cidr_ip: 0.0.0.0/0
     - name: modify sg_database rules 
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         vpc_id: "{{ vpc_id }}"
         name: "{{ prefix }}_sg_database"    
@@ -75,8 +73,7 @@
             to_port: 443    
             cidr_ip: 0.0.0.0/0
     - name: modify sg_nat rules
-      local_action:  
-        module: ec2_group    
+      ec2_group:
         region: "{{ region }}"
         vpc_id: "{{ vpc_id }}"
         name: "{{ prefix }}_sg_nat"    

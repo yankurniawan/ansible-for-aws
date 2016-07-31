@@ -7,27 +7,24 @@
     region: ap-southeast-2
     keyname: wordpress-apsydney
     #your ip address
-    allowed_ip: 123.243.16.53/32
+    allowed_ip: 203.87.79.2/32
     instance_type: t2.micro     
-    image: ami-d9fe9be3
+    image: ami-dc361ebf
   tasks:  
     - name: create key pair  
       tags: keypair  
-      local_action:  
-        module: ec2_key  
+      ec2_key:  
         region: "{{ region }}"  
         name: "{{ keyname }}"      
       register: mykey  
-    - name: write the private key to a file  
-      tags: keypair  
-      local_action: shell echo -e "{{ item.value.private_key }}" > ~/.ssh/"{{ keyname }}".pem && chmod 600 ~/.ssh/"{{ keyname }}".pem      
-      with_dict: mykey   
-      when: item.value.private_key is defined     
+
+    - name: write the private key to file
+      copy: content="{{ mykey.key.private_key }}" dest="~/.ssh/{{ keyname }}.pem" mode=0600
+      when: mykey.changed
 
     - name: create security group  
       tags: sg
-      local_action:  
-        module: ec2_group    
+      ec2_group:    
         region: "{{ region }}"
         #your security group name  
         name: sg_wordpress_apsydney    
@@ -62,7 +59,6 @@
         image: "{{ image }}"  
         wait: yes    
         group: sg_wordpress_apsydney  
-        id: wordpress_launch_2  
         instance_tags:  
           Name: wordpress-1  
           class: wordpress

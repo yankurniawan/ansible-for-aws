@@ -10,7 +10,7 @@
   shell: cp -r ~/wordpress/* /var/www/html  
 
 - name: fetch random salts for wordpress config
-  local_action: command curl https://api.wordpress.org/secret-key/1.1/salt/
+  command: curl https://api.wordpress.org/secret-key/1.1/salt/
   register: "wp_salt"
 
 - name: create wordpress database

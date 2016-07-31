@@ -1,6 +1,7 @@
 ---
 - hosts: localhost
   gather_facts: no
+  connection: local 
   vars:
     region: ap-southeast-2
     size: 100
@@ -17,8 +18,7 @@
     password: mypassword    
   tasks:
     - name: create mysql RDS instance
-      local_action:
-        module: rds
+      rds:
         command: create
         instance_name: staging-mysql-1
         region: "{{ region }}"

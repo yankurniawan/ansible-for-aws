@@ -12,8 +12,7 @@
     prefix: staging
   tasks:
     - name: database instance provisioning
-      local_action:
-        module: ec2
+      ec2:
         region: "{{ region }}"
         key_name: "{{ key }}"
         instance_type: "{{ instance_type }}"
@@ -24,6 +23,5 @@
           Name: "{{ prefix }}_database"
           class: database
           environment: staging
-        id: db_launch_01
         vpc_subnet_id: "{{ staging_subnet_private }}"
         assign_public_ip: no

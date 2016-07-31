@@ -9,8 +9,7 @@
     key: yan-key-pair-apsydney  
   tasks:  
     - name: launch ec2 with tags webserver staging 
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         key_name: "{{ key }}"  
         instance_type: "{{ instance_type }}"    
@@ -22,8 +21,7 @@
           class: webserver  
           environment: staging  
     - name: launch ec2 with tags webserver production 
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         key_name: "{{ key }}"  
         instance_type: "{{ instance_type }}"    
@@ -35,8 +33,7 @@
           class: webserver  
           environment: production
     - name: launch ec2 with tags database staging 
-      local_action:  
-        module: ec2  
+      ec2:
         region: "{{ region }}"  
         key_name: "{{ key }}"  
         instance_type: "{{ instance_type }}"    

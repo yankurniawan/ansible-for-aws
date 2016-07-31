@@ -15,8 +15,7 @@
       register: instanceid
 
     - name: create EC2 if not exists 
-      local_action:  
-        module: ec2  
+      ec2:  
         region: "{{ region }}"  
         key_name: "{{ key }}"  
         instance_type: "{{ type }}"  

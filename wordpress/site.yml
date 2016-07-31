@@ -1,9 +1,10 @@
 ---
 - name: install apache, php, mysql server, wordpress
   hosts: tag_class_wordpress
-  sudo: yes
+  become: yes
 
   roles:
+#    - common
     - web
     - mysql
     - wordpress
