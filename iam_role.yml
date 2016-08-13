@@ -1,0 +1,11 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  connection: local 
+  tasks:
+    - name: create IAM role app1 
+      iam:
+        iam_type: role
+        name: app1
+        state: present
+

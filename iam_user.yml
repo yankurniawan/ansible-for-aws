@@ -1,0 +1,12 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  connection: local 
+  tasks:
+    - name: create IAM user yan 
+      iam:
+        iam_type: user
+        name: yan
+        state: present
+        groups: admin
+

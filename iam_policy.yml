@@ -1,0 +1,13 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  connection: local 
+  tasks:
+    - name: Assign a policy called Administrator to the admin group
+      iam_policy:
+        iam_type: group
+        iam_name: admin
+        policy_name: Administrator
+        state: present
+        policy_document: iam_policy_admin.json
+

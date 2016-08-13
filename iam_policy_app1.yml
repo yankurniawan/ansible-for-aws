@@ -1,0 +1,13 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  connection: local 
+  tasks:
+    - name: Assign a policy called S3ReadOnly to the app1 role
+      iam_policy:
+        iam_type: role
+        iam_name: app1
+        policy_name: S3ReadOnly
+        state: present
+        policy_document: iam_policy_s3_read.json
+

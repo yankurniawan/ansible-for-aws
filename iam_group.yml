@@ -1,0 +1,11 @@
+---  
+- hosts: localhost  
+  gather_facts: no    
+  connection: local 
+  tasks:
+    - name: create IAM group admin 
+      iam:
+        iam_type: group
+        name: admin 
+        state: present
+
