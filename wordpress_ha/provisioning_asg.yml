@@ -1,0 +1,123 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - include_vars: "{{ env }}.yml"
+
+    - set_fact:
+        timestamp: "{{ lookup('pipe', 'date +%g%m%d%H%M%S') }}"
+
+    - name: Create public ELB
+      ec2_elb_lb:
+        region: "{{ region }}"
+        name: "{{ asg_name }}-{{ env }}"
+        state: present
+        cross_az_load_balancing: yes
+        security_group_ids: "{{ elb_group_ids }}"
+        subnets: "{{ elb_subnets }}"
+        listeners:
+          - protocol: http
+            load_balancer_port: 80
+            instance_port: 80
+        health_check:
+          ping_protocol: http
+          ping_port: 80
+          ping_path: "/index.php"
+          response_timeout: 2
+          interval: 10
+          unhealthy_threshold: 2
+          healthy_threshold: 2
+        connection_draining_timeout: 60
+      register: elb
+    - debug: var=elb
+
+    - name: Create Launch Configuration
+      ec2_lc:
+        region: "{{ region }}"
+        name: "{{ asg_name }}-{{ env }}-{{ timestamp }}"
+        image_id: "{{ image_id }}"
+        key_name: "{{ keypair }}"
+        instance_type: "{{ instance_type }}"
+        security_groups: "{{ security_groups }}"
+        instance_monitoring: yes
+      register: lc
+    - debug: var=lc
+
+    - name: Configure Auto Scaling Group
+      ec2_asg:
+        region: "{{ region }}"
+        name: "{{ asg_name }}-{{ env }}-{{ timestamp }}"
+        vpc_zone_identifier: "{{ asg_subnet_ids }}"
+        launch_config_name: "{{ lc.name }}"
+        availability_zones: "{{ zones }}"
+        health_check_type: EC2
+        health_check_period: 300
+        desired_capacity: "{{ asg_min }}"
+        min_size: "{{ asg_min }}"
+        max_size: "{{ asg_max }}"
+        tags:
+         - Name: "{{ asg_name }}-{{ env }}"
+        load_balancers: "{{ elb.elb.name }}"
+        state: present
+      register: asg
+    - debug: var=asg
+
+    - name: Configure Scaling Policies
+      ec2_scaling_policy:
+        region: "{{ region }}"
+        name: "{{ item.name }}"
+        asg_name: "{{ asg_name }}-{{ env }}-{{ timestamp }}"
+        state: present
+        adjustment_type: "{{ item.adjustment_type }}"
+        min_adjustment_step: "{{ item.min_adjustment_step }}"
+        scaling_adjustment: "{{ item.scaling_adjustment }}"
+        cooldown: "{{ item.cooldown }}"
+      with_items:
+        - name: "Increase Group Size"
+          adjustment_type: "ChangeInCapacity"
+          scaling_adjustment: +1
+          min_adjustment_step: 1
+          cooldown: 180
+        - name: "Decrease Group Size"
+          adjustment_type: "ChangeInCapacity"
+          scaling_adjustment: -1
+          min_adjustment_step: 1
+          cooldown: 300
+      register: scaling_policy
+    - debug: var=scaling_policy
+
+    - name: Define Metric Alarms configuration
+      set_fact:
+        metric_alarms:
+          - name: "{{ asg.name }}-ScaleUp"
+            comparison: ">="
+            threshold: 70.0
+            alarm_actions:
+              - "{{ scaling_policy.results[0].arn }}"
+          - name: "{{ asg.name }}-ScaleDown"
+            comparison: "<="
+            threshold: 30.0
+            alarm_actions:
+              - "{{ scaling_policy.results[1].arn }}"
+
+    - name: Configure Metric Alarms
+      ec2_metric_alarm:
+        region: "{{ region }}"
+        name: "{{ item.name }}"
+        state: present
+        metric: "CPUUtilization"
+        namespace: "AWS/EC2"
+        statistic: "Average"
+        comparison: "{{ item.comparison }}"
+        threshold: "{{ item.threshold }}"
+        period: 60
+        evaluation_periods: 5
+        unit: "Percent"
+        dimensions:
+          AutoScalingGroupName: "{{ asg.name }}"
+        alarm_actions: "{{ item.alarm_actions }}"
+      with_items: "{{ metric_alarms }}"
+      when: "{{ asg.max_size }} > 1"
+      register: alarms
+    - debug: var=alarms

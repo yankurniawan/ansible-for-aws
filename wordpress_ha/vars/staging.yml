@@ -1,0 +1,13 @@
+---
+region: ap-southeast-2
+zones: ['ap-southeast-2a','ap-southeast-2b']
+asg_subnet_ids: ['subnet-0da97768','subnet-1f33f768'] # staging_subnet_private_2 and staging_subnet_private_3
+elb_subnets: ['subnet-8ceb18e9','subnet-08ccd27c'] # staging_subnet_public_0 and staging_subnet_public_1
+asg_name: wordpress
+image_id: ami-6d7c590e # ami created from the master wordpress instance
+instance_type: t2.micro
+security_groups: ['sg-85426fe0'] # staging_sg_wordpress 
+elb_group_ids: ['sg-c4507da1'] # staging_sg_wordpress_lb
+keypair: wordpress-apsydney
+asg_min: 1
+asg_max: 8
